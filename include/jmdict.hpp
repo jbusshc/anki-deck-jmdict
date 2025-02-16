@@ -50,6 +50,7 @@ struct JMDictSenseElement {
 };
 // Entrada del diccionario
 struct JMDictEntry {
+    std::string ent_seq;
     std::vector<JMDictKanjiElement> kanji;
     std::vector<JMDictReadingElement> reading;
     std::vector<JMDictSenseElement> sense;
@@ -105,7 +106,7 @@ class JMDict {
         }
         void parse(int mode = 0);
         bool isLangSupported(const std::string &lang) const;
-        const JMDictEntry &getEntry(int index) const {
+        const std::vector<JMDictEntry> &getEntry(int index) const {
             return entries_[index];
         }
         const std::vector<std::string> &getLangs() const {
@@ -118,16 +119,16 @@ class JMDict {
         void setLang(Language lang) {
             langs_ = createLangsVector(lang);
         }
-        const std::vector<JMDictEntry> &getEntries() const {
+        const std::vector<std::vector<JMDictEntry>> &getEntries() const {
             return entries_;
         }
-        void generateTxt(const std::string &filename) const;
+
 
     private:
         std::string filename_;
         xmlDoc *document_;
         xmlNode *rootElement_;
-        std::vector<JMDictEntry> entries_;
+        std::vector<std::vector<JMDictEntry>> entries_;
         std::unordered_map<std::string, int> indexMap_;
         std::vector<std::string> langs_;
 

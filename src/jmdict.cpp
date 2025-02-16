@@ -2,6 +2,8 @@
 
 
 // Inicializar la biblioteca de libxml2 y cargar el archivo XML
+// mode = 0: merge entries 
+// mode = 1: merge examples
 void JMDict::parse( int mode) {
     // Inicializar la biblioteca de libxml2
     xmlInitParser();
@@ -24,8 +26,6 @@ void JMDict::parse( int mode) {
     // Procesar el root element
     processXML_(rootElement_->children, mode);
 }
-
-
 
 // Procesar el XML
 void JMDict::processXML_(xmlNode *node, int mode) {
@@ -65,7 +65,9 @@ void JMDict::processEntry_(xmlNode *node, JMDictEntry &entry) {
                 //std::cout << "Procesando sense..." << std::endl;
             }
             else if (xmlStrcmp(cur_node->name, (const xmlChar *)"ent_seq") == 0) {
-                // Do nothing
+                xmlChar *content = xmlNodeGetContent(cur_node);
+                entry.ent_seq = std::string((const char *)content);
+                xmlFree(content);
             }
             else {
                 std::cerr << "_processEntry-> Elemento desconocido: " << cur_node->name << std::endl;
@@ -214,10 +216,12 @@ void JMDict::insertEntry_(const JMDictEntry &entry, int mode) {
     int index = searchEntry(key);
     //std::cout << "search entry" << std::endl;
     if (index != -1) {
-        entries_[index] = mergeEntry(entries_[index], entry, mode);
+        entries_[index].push_back(entry);
     }
     else {
-        entries_.push_back(entry);
+        std::vector<JMDictEntry> entries;
+        entries.push_back(entry);
+        entries_.push_back(entries);
         indexMap_[key] = entries_.size() - 1;
     }
     //std::cout << "merged" << std::endl;
@@ -263,194 +267,21 @@ int JMDict::searchEntry(const std::string& key) const {
     return -1;
 }
 
-// Fusionar dos entradas distintas. Devuelve la entrada fusionada.
-JMDictEntry JMDict::mergeEntry(const JMDictEntry &entry, const JMDictEntry &newEntry, int mode) {
-    JMDictEntry mergedEntry;
-    bool exit = false;
-    if (mode == 0) {
-        for (auto kanji : entry.kanji) {
-            mergedEntry.kanji.push_back(kanji);
-        }
-        for (auto kanji : newEntry.kanji) {
-            for (auto k : mergedEntry.kanji) {
-                if (k.keb == kanji.keb) {
-                    exit = true;
-                    break;
-                }
-            }
-            if (exit) {
-                exit = false;
-                continue;
-            }
-            if (mergedEntry.kanji.size() > 0) {
-                mergedEntry.kanji.push_back(kanji);
-            }
-        }
-        for (auto reading : entry.reading) {
-            mergedEntry.reading.push_back(reading);
-        }
-        for (auto reading : newEntry.reading) {
-            for (auto r : mergedEntry.reading) {
-                if (r.reb == reading.reb) {
-                    exit = true;
-                    break;
-                }
-            }
-            if (exit) {
-                exit = false;
-                continue;
-            }
-            if (mergedEntry.reading.size() > 0) {
-                mergedEntry.reading.push_back(reading);
-            }
-        }
-        for (auto sense : entry.sense) {
-            mergedEntry.sense.push_back(sense);
-        }
-        for (auto sense : newEntry.sense) {
-            for (auto s : mergedEntry.sense) {
-                if (s.gloss == sense.gloss) {
-                    exit = true;
-                    break;
-                }
-            }
-            if (exit) {
-                exit = false;
-                continue;
-            }
-            if (mergedEntry.sense.size() > 0) {
-                mergedEntry.sense.push_back(sense);
-            }
-        }
-    }
-    else {
-        for (auto kanji : entry.kanji) {
-            mergedEntry.kanji.push_back(kanji);
-        }
-        for (auto reading : entry.reading) {
-            mergedEntry.reading.push_back(reading);
-        }
-        for (auto sense : entry.sense) {
-            mergedEntry.sense.push_back(sense);
-        }
-        ///*
-        for (auto newSense: newEntry.sense) {
-            for (auto example : newSense.example) {
-                if (mergedEntry.sense.size() > 0) {
-                    mergedEntry.sense[0].example.push_back(example);
-                }
-                else {
-                    mergedEntry.sense.push_back(newSense);
-                }
-            }
-        }
-        //*/
-
-    }
-
-    return mergedEntry;
-}
-
 // Imprimir las entradas del diccionario
 void JMDict::print() const {
-    for (auto entry : entries_) 
-        printEntry_(entry);
+    //for (auto entry : entries_) 
+        //printEntry_(entry);
 }
 
-void JMDict::generateTxt(const std::string &filename) const {
-    std::ofstream file (filename);
-    if (!file.is_open()) {
-        std::cerr << "Error al abrir el archivo " << filename << std::endl;
-        return;
+bool isEmpty(const std::string str) {
+    if (str.length() == 0){
+        return true;
     }
-    //int n = 0;
-    file << "Kanji; Reading; Gloss\n";
-    for (auto entry : entries_) {
-        if (entry.kanji.size() > 0) {
-            std::string kanji;
-            std::string reading;
-            std::string gloss;
-            /*
-            for (auto k : entry.kanji) {
-                kanji = k.keb;
-                for(auto r : entry.reading) {
-                    reading = r.reb;
-                    for (auto s : entry.sense) {
-                        if (s.lang == Language::ENGLISH) {
-                            if (s.gloss.size() > 0) {
-                                gloss = s.gloss[0];
-                                file << kanji << "; " << reading << "; " << gloss << "\n";
-                            }
-                            else {
-                                std::cout << "No hay gloss en " << kanji << " " << reading << std::endl;
-                            }
-                        }
-                    }
-                }
-            }*/
-            /* 
-            for (auto k : entry.kanji) {
-                kanji = k.keb;
-                for(auto r : entry.reading) {
-                    reading = r.reb;
-                    for (auto s : entry.sense) {
-                        if (s.lang == Language::ENGLISH) {
-                            for (auto g : s.gloss) {
-                                gloss = g;
-                                file << kanji << "; " << reading << "; " << gloss << "\n";
-                            }
-                        }
-                    }
-                }
-            }
-            */
-            //file << entry.kanji[0].keb << "; " << entry.reading[0].reb << "; " << entry.sense[0].gloss[0] << "\n";
 
-            //para todos los kanjis y readings pero solo un sense.
-            
-            for (auto k : entry.kanji) {
-                kanji = k.keb;
-                for(auto r : entry.reading) {
-                    reading = r.reb;
-                    for (auto s : entry.sense) {
-                        if (s.lang == Language::ENGLISH) {
-                            if (s.gloss.size() > 0) {
-                                gloss = s.gloss[0];
-                                file << kanji << "; " << reading << "; " << gloss << "\n";
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else {
-            /*
-            for (auto r : entry.reading) {
-                std::string reading = r.reb;
-                for (auto s : entry.sense) {
-                    if (s.lang == Language::ENGLISH) {
-                        if (s.gloss.size() > 0) {
-                            std::string gloss = s.gloss[0];
-                            file << " ; " << reading << "; " << gloss << "\n";
-                        }
-                    }
-                }
-            }
-            */
-           // todos los readings pero solo un sense
-            for (auto r : entry.reading) {
-                std::string reading = r.reb;
-                for (auto s : entry.sense) {
-                    if (s.lang == Language::ENGLISH) {
-                        if (s.gloss.size() > 0) {
-                            std::string gloss = s.gloss[0];
-                            file << " ; " << reading << "; " << gloss << "\n";
-                            break;
-                        }
-                    }
-                }
-            }
+    for (int i = 0; i < str.length(); i++) {
+        if (str[i] != ' ' || str[i] != '\n' || str[i] != '\t') {
+            return false;
         }
     }
+    return true;
 }

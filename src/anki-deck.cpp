@@ -15,6 +15,27 @@ bool isCommon(const std::string& text) {
     if (inSubstr(text, "gai1")) {
         return true;
     }
+    if (inSubstr(text, "ichi2")) {
+        return true;
+    }
+    if (inSubstr(text, "news2")) {
+        return true;
+    }
+    if (inSubstr(text, "spec2")) {
+        return true;
+    }
+    if (inSubstr(text, "gai2")) {
+        return true;
+    }
+
+    if (inSubstr(text, "nf")) {
+
+        for (int i = 0; i <= 48; i++) {
+            if (inSubstr(text, "nf" + std::to_string(i))) {
+                return true;
+            }
+        }
+    }
     return false;
 }
 
@@ -56,56 +77,99 @@ void AnkiDeck::generateAnkiDeck() const {
     }
     
     std::cout << "Generando baraja de Anki en "<< filename_ << "..." << std::endl;
-
-
-for (const JMDictEntry& entry : jmdict_.getEntries()) {
-        //std::cout << "preEntry " << nEntry << std::endl;
-        //std::cout << "Entry " << nEntry << std::endl;
-        // Kanji word
-        if (entry.kanji.size() > 0) {
-            file << "<div class=\"front\">"+entry.kanji[0].keb + "</div>" << "\t";
-            // Reading
-            for (const JMDictKanjiElement &kanji : entry.kanji) {
-                file << "<div class=\"word\">" + kanji.keb + "</div> <br>";
-                for (const JMDictReadingElement &reading : entry.reading) {
-                    if (reading.re_restr.size() == 0 || reading.re_restr == kanji.keb) {
-                        file << "<div class=\"reading\">" + reading.reb + "</div>";
-                    }
+    for (const std::vector<JMDictEntry> &entries: jmdict_.getEntries()) {
+        bool frontWritten = false;
+        for (const JMDictEntry& entry : entries ) {
+            //std::cout << "preEntry " << nEntry << std::endl;
+            //std::cout << "Entry " << nEntry << std::endl;
+            // Kanji word
+            if (entry.kanji.size() > 0) {
+                if (!frontWritten) {
+                    file << "<div class=\"front\">"+entry.kanji[0].keb + "</div>" << "\t";
+                    frontWritten = true;
                 }
-
-                file << "<br>";
-            }
-
-            // Sense
-            for (const JMDictSenseElement &sense : entry.sense) {
-                // Pos
-                for (const std::string &pos : sense.pos) 
-                    file << "<div class=\"pos\">" + pos + "</div>";
-                
-                // Gloss
-                file << "<div class=\"gloss\">";
-                for (const std::string &gloss : sense.gloss) 
-                    file << "• " + gloss + "<br>";
-                
-                file << "</div>";
-
-            }
-
-            for (const JMDictSenseElement &sense : entry.sense) {
-                for (const JMDictExampleElement &example : sense.example) {
-                    //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
-                    for (const std::string &sent : example.ex_sent) {
-                        file << "<div class=\"sentence\">" + sent + "</div>";
+                // Reading
+                for (const JMDictKanjiElement &kanji : entry.kanji) {
+                    file << "<div class=\"word\">" + kanji.keb + "</div> <br>";
+                    for (const JMDictReadingElement &reading : entry.reading) {
+                        if (reading.re_restr.size() == 0 || reading.re_restr == kanji.keb) {
+                            file << "<div class=\"reading\">" + reading.reb + "</div>";
+                        }
                     }
+    
                     file << "<br>";
                 }
+    
+                // Sense
+                for (const JMDictSenseElement &sense : entry.sense) {
+                    // Pos
+                    for (const std::string &pos : sense.pos) 
+                        file << "<div class=\"pos\">" + pos + "</div>";
+                    
+                    // Gloss
+                    file << "<div class=\"gloss\">";
+                    for (const std::string &gloss : sense.gloss) 
+                        file << "• " + gloss + "<br>";
+                    
+                    file << "</div>";
+    
+                }
+    
+                for (const JMDictSenseElement &sense : entry.sense) {
+                    for (const JMDictExampleElement &example : sense.example) {
+                        //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
+                        for (const std::string &sent : example.ex_sent) {
+                            file << "<div class=\"sentence\">" + sent + "</div>";
+                        }
+                        file << "<br>";
+                    }
+                }
             }
-
-            file << "\t";
-            std::string tags = "";
-            std::string str = "";
-            tags = getTagKanjiKanken(entry.kanji[0].keb) + " ";
-            for (const JMDictKanjiElement &kanji : entry.kanji) {
+            // Kana word
+            else {
+                if (entry.reading.size() == 0) {
+                    std::cerr << "No reading for entry: " << entry.kanji[0].keb << std::endl;
+                    continue;
+                }
+                if (!frontWritten) {
+                    file << "<div class=\"front\">"+entry.reading[0].reb + "</div>" << "\t";
+                    frontWritten = true;
+                }
+                for (const JMDictReadingElement &reading : entry.reading) {
+                    file << "<div class=\"word\">" + reading.reb + "</div> <br>";
+                }
+                for (const JMDictSenseElement &sense : entry.sense) {
+                    // Pos
+                    for (const std::string &pos : sense.pos) 
+                        file << "<div class=\"pos\">" + pos + "</div>";
+                    
+                    // Gloss
+                    file << "<div class=\"gloss\">";
+                    for (const std::string &gloss : sense.gloss) 
+                        file << "• " + gloss + "<br>";
+                    
+                    file << "</div>";
+    
+                }
+                for (const JMDictSenseElement &sense : entry.sense) {
+                    for (const JMDictExampleElement &example : sense.example) {
+                        //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
+                        for (const std::string &sent : example.ex_sent) {
+                            file << "<div class=\"sentence\">" + sent + "</div>";
+                        }
+                        file << "<br>";
+                    }
+                }
+            }
+        }
+        
+        // write tags
+        file << "\t";
+        std::string tags = "";
+        std::string str = "";
+        if (entries[0].kanji.size() > 0) {
+            tags = getTagKanjiKanken(entries[0].kanji[0].keb) + " ";
+            for (const JMDictKanjiElement &kanji : entries[0].kanji) {
                 str = kanji.ke_pri;
                 if (str.empty())
                     continue;
@@ -113,91 +177,19 @@ for (const JMDictEntry& entry : jmdict_.getEntries()) {
                     tags += str + " ";
                 }
             }
-
-            for (const JMDictSenseElement &sense : entry.sense) {
-                for (const auto &misc : sense.misc) {
-                    str = misc;
-                    cleanText(str);
-                    replaceWhiteSpaces(str);
-                    if (!inSubstr(tags, str)) {
-                        tags += str + " ";
-                    }
-                }
-    
-                for (const auto &dial : sense.dial) {
-                    str = dial;
-                    replaceWhiteSpaces(str);
-                    if (!inSubstr(tags, str)) {
-                        tags += str + " ";
-                    }
-                }
-
-                for (const auto &field : sense.field) {
-                    str = field;
-                    replaceWhiteSpaces(str);
-                    if (!inSubstr(tags, str)) {
-                        tags += str + " ";
-                    }
-                }
-
-                for (const auto &lsource : sense.lsource) {
-                    str = lsource;
-                    replaceWhiteSpaces(str);
-                    if (!inSubstr(tags, str)) {
-                        tags += str + " ";
-                    }
-                }
-            }
-            if (isCommon(tags)) {
-                tags += "common";
-            }
-            file << tags;
-
         }
-        // Kana word
         else {
-            if (entry.reading.size() == 0) {
-                std::cerr << "No reading for entry: " << entry.kanji[0].keb << std::endl;
-                continue;
-            }
-            file << "<div class=\"front\">"+entry.reading[0].reb + "</div>" << "\t";
-            for (const JMDictReadingElement &reading : entry.reading) {
-                file << "<div class=\"word\">" + reading.reb + "</div> <br>";
-            }
-            for (const JMDictSenseElement &sense : entry.sense) {
-                // Pos
-                for (const std::string &pos : sense.pos) 
-                    file << "<div class=\"pos\">" + pos + "</div>";
-                
-                // Gloss
-                file << "<div class=\"gloss\">";
-                for (const std::string &gloss : sense.gloss) 
-                    file << "• " + gloss + "<br>";
-                
-                file << "</div>";
-
-            }
-            for (const JMDictSenseElement &sense : entry.sense) {
-                for (const JMDictExampleElement &example : sense.example) {
-                    //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
-                    for (const std::string &sent : example.ex_sent) {
-                        file << "<div class=\"sentence\">" + sent + "</div>";
-                    }
-                    file << "<br>";
-                }
-            }
-            file << "\t";
-            std::string tags = "";
-            std::string str = "";
-            tags = getTagKanjiKanken(entry.reading[0].reb) + " ";
-            for (const JMDictReadingElement &reading : entry.reading) {
+            tags = getTagKanjiKanken(entries[0].reading[0].reb) + " ";
+            for (const JMDictReadingElement &reading : entries[0].reading) {
                 str = reading.re_pri;
                 if (str.empty())
                     continue;
                 if (!inSubstr(tags, str)) {
                     tags += str + " ";
                 }
-            }       
+            }
+        }
+        for (const JMDictEntry &entry : entries) {
             for (const JMDictSenseElement &sense : entry.sense) {
                 for (const auto &misc : sense.misc) {
                     str = misc;
@@ -215,7 +207,7 @@ for (const JMDictEntry& entry : jmdict_.getEntries()) {
                         tags += str + " ";
                     }
                 }
-
+    
                 for (const auto &field : sense.field) {
                     str = field;
                     replaceWhiteSpaces(str);
@@ -223,7 +215,7 @@ for (const JMDictEntry& entry : jmdict_.getEntries()) {
                         tags += str + " ";
                     }
                 }
-
+    
                 for (const auto &lsource : sense.lsource) {
                     str = lsource;
                     replaceWhiteSpaces(str);
@@ -232,14 +224,14 @@ for (const JMDictEntry& entry : jmdict_.getEntries()) {
                     }
                 }
             }
-            if (isCommon(tags)) {
-                tags += "common";
-            }
-            file << tags;
-        } 
+        }
+        if (isCommon(tags)) {
+            tags += "common";
+        }
+        file << tags;
         file << std::endl;
-        //jmdict_.printEntryAt(nEntry-1, PrintMode::KANJI | PrintMode::READING);
     }
+
 
     file.close();
 }
@@ -288,7 +280,7 @@ void AnkiDeck::readAllKanjiKanken() {
 }
 
 int AnkiDeck::getWordKanjiKanken(const std::string& word) const {
-    for (int i = 0; i < kanjiKanken_.size(); i++) {
+    for (size_t i = 0; i < kanjiKanken_.size(); i++) {
         for (const std::string &kanji : kanjiKanken_[i]) {
             if (inSubstr(word, kanji)) {
                 return i;

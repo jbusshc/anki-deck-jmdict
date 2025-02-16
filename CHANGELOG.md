@@ -1,5 +1,25 @@
 # Changelog
 
+
+
+## [0.7.0] - 2022-2-16
+
+## Changed
+Se cambió el modelo: entradas JMDictEntry pasan a ser std::vector<JMDictEntry>> 
+
+## Fixed
+- Se separan correctamente las entradas con múltiples lecturas.
+
+## Removed
+- Se elimina la función mergeEntry (ya no es necesaria)
+- Se han eliminado temporalmente los ejemplos de las tarjetas
+
+### Pending
+- Añadir ejemplos de las palabras
+- Añadir clase para Kanjis, para incluirlos en cada entrada.
+- Mostrar diferencias de idioma.
+- Ant y ref en anki
+
 ## [0.6.2] - 2024-12-6
 ### Added 
 - Añadida función cleanText,
