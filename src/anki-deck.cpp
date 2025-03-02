@@ -1,6 +1,9 @@
 #include "anki-deck.hpp"
 
-bool inSubstr(const std::string& str, const std::string& substr);
+
+bool inSubstr(const std::string& str, const std::string& substr) {
+    return str.find(substr) != std::string::npos;
+}
 
 bool isCommon(const std::string& text) {
     if (inSubstr(text, "ichi1")) {
@@ -92,9 +95,10 @@ void AnkiDeck::generateAnkiDeck() const {
                 for (const JMDictKanjiElement &kanji : entry.kanji) {
                     file << "<div class=\"word\">" + kanji.keb + "</div> <br>";
                     for (const JMDictReadingElement &reading : entry.reading) {
-                        if (reading.re_restr.size() == 0 || reading.re_restr == kanji.keb) {
+                        if (reading.re_restr.size() == 0 || inSubstr(kanji.keb, reading.re_restr) || reading.re_restr == "") {
                             file << "<div class=\"reading\">" + reading.reb + "</div>";
                         }
+                        
                     }
     
                     file << "<br>";
@@ -235,12 +239,6 @@ void AnkiDeck::generateAnkiDeck() const {
 
     file.close();
 }
-
-bool inSubstr(const std::string& str, const std::string& substr) {
-    return str.find(substr) != std::string::npos;
-}
-
-
 
 void AnkiDeck::readKanjiKanken(const std::string& filename, int pos) {
     std::ifstream file(filename);

@@ -1,4 +1,6 @@
 #include "jmdict.hpp"
+#include <libxml2/libxml/xmlversion.h>
+#include <libxml2/libxml/tree.h>
 
 
 // Inicializar la biblioteca de libxml2 y cargar el archivo XML

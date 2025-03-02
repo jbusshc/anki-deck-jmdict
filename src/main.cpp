@@ -1,8 +1,8 @@
 #include "anki-deck.hpp"
 
 #define DUMMY "../data/dummy.xml"
-#define JMDICT_XML "../data/JMdict.xml"
-#define JMDICT_E_XML "../data/JMdict_e_examp.xml"
+#define JMDICT_XML "../data/JMdict"
+#define JMDICT_E_XML "../data/JMdict_e_examp"
 #define EXAMPLE_EXTRACT 1
 
 int main() {
