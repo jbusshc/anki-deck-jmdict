@@ -1,11 +1,10 @@
 #include "jmdict.hpp"
 #include <libxml2/libxml/xmlversion.h>
 #include <libxml2/libxml/tree.h>
+#include "constant.hpp"
 
 
 // Inicializar la biblioteca de libxml2 y cargar el archivo XML
-// mode = 0: merge entries 
-// mode = 1: merge examples
 void JMDict::parse( int mode) {
     // Inicializar la biblioteca de libxml2
     xmlInitParser();
@@ -217,16 +216,41 @@ void JMDict::insertEntry_(const JMDictEntry &entry, int mode) {
     //std::cout << "post searchEntry" << std::endl;
     int index = searchEntry(key);
     //std::cout << "search entry" << std::endl;
-    if (index != -1) {
-        entries_[index].push_back(entry);
+    if (mode == MODE_JMDICT_CREATE) {   
+        if (index != -1) {
+            entries_[index].push_back(entry);
+        }
+        else {
+            std::vector<JMDictEntry> entries;
+            entries.push_back(entry);
+            entries_.push_back(entries);
+            indexMap_[key] = entries_.size() - 1;
+        }
+    } else {
+        bool exit = false;
+        for (auto &e: entries_[index]) {
+            if (e.ent_seq == entry.ent_seq){
+                for (auto &eSense: e.sense) {
+                    for (auto &sense: entry.sense) {
+                        if (eSense.gloss[0] == sense.gloss[0]) {
+                            for (auto &ex: sense.example) {
+                                eSense.example.push_back(ex);
+                            }
+                            exit = true;
+                            break;
+                        }
+                    }
+                    if (exit) {
+                        break;
+                    }
+                } 
+            }
+            if (exit) {
+                break;
+            }
+        }
     }
-    else {
-        std::vector<JMDictEntry> entries;
-        entries.push_back(entry);
-        entries_.push_back(entries);
-        indexMap_[key] = entries_.size() - 1;
-    }
-    //std::cout << "merged" << std::endl;
+        //std::cout << "merged" << std::endl;
 }
 
 // Imprimir una entrada
@@ -280,7 +304,7 @@ bool isEmpty(const std::string str) {
         return true;
     }
 
-    for (int i = 0; i < str.length(); i++) {
+    for (size_t i = 0; i < str.length(); i++) {
         if (str[i] != ' ' || str[i] != '\n' || str[i] != '\t') {
             return false;
         }

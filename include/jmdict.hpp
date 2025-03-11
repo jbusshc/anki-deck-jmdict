@@ -113,7 +113,6 @@ class JMDict {
             return langs_;
         }
         int searchEntry(const std::string&) const;
-        JMDictEntry mergeEntry(const JMDictEntry &entry, const JMDictEntry &, int mode);
         void print() const;
         //void parseExamplesFromXML(const std::string &str);
         void setLang(Language lang) {
