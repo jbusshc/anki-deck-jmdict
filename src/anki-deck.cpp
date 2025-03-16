@@ -109,24 +109,23 @@ void AnkiDeck::generateAnkiDeck() const {
                     // Pos
                     for (const std::string &pos : sense.pos) 
                         file << "<div class=\"pos\">" + pos + "</div>";
-                    
+                    file << "<div class=\"flag\"> ";
+                    file << getLangFlag(sense.lang);
+                    file << "</div>";
                     // Gloss
                     file << "<div class=\"gloss\">";
                     for (const std::string &gloss : sense.gloss) 
                         file << "• " + gloss + "<br>";
                     
                     file << "</div>";
-    
-                }
-    
-                for (const JMDictSenseElement &sense : entry.sense) {
+                    file << "<div class=\"example\">";
                     for (const JMDictExampleElement &example : sense.example) {
                         //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
                         for (const std::string &sent : example.ex_sent) {
-                            file << "<div class=\"sentence\">" + sent + "</div>";
+                            file << "<div class=\"sentence\">" + getHighlightedWord(sent, entry)  + "</div>";
                         }
-                        file << "<br>";
                     }
+                    file << "</div>";
                 }
             }
             // Kana word
@@ -146,23 +145,23 @@ void AnkiDeck::generateAnkiDeck() const {
                     // Pos
                     for (const std::string &pos : sense.pos) 
                         file << "<div class=\"pos\">" + pos + "</div>";
-                    
+                    file << "<div class=\"flag\"> ";
+                    file << getLangFlag(sense.lang);
+                    file << "</div>";
                     // Gloss
                     file << "<div class=\"gloss\">";
                     for (const std::string &gloss : sense.gloss) 
                         file << "• " + gloss + "<br>";
                     
                     file << "</div>";
-    
-                }
-                for (const JMDictSenseElement &sense : entry.sense) {
+                    file << "<div class=\"example\">";
                     for (const JMDictExampleElement &example : sense.example) {
                         //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
                         for (const std::string &sent : example.ex_sent) {
-                            file << "<div class=\"sentence\">" + sent + "</div>";
+                            file << "<div class=\"sentence\">" + getHighlightedWord(sent, entry)  + "</div>";
                         }
-                        file << "<br>";
                     }
+                    file << "</div>";
                 }
             }
         }
@@ -310,4 +309,29 @@ std::string AnkiDeck::getStringKanjiKanken(int pos) const {
 std::string AnkiDeck::getTagKanjiKanken(std::string word) const {
     int pos = getWordKanjiKanken(word);
     return getStringKanjiKanken(pos);
+}
+
+std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDictEntry& word) const {
+    if (word.kanji.size() > 0) {
+        for (const JMDictKanjiElement &kanji : word.kanji) {
+            if (inSubstr(example, kanji.keb)) {
+                std::string highlighted = "<span class=\"highlighted\">" + kanji.keb + "</span>";
+                std::string result = example.substr(0, example.find(kanji.keb));
+                result += highlighted;
+                result += example.substr(example.find(kanji.keb) + kanji.keb.size());
+                return result;
+            }
+        }
+    } else {
+        for (const JMDictReadingElement &reading : word.reading) {
+            if (inSubstr(example, reading.reb)) {
+                std::string highlighted = "<span class=\"highlighted\">" + reading.reb + "</span>";
+                std::string result = example.substr(0, example.find(reading.reb));
+                result += highlighted;
+                result += example.substr(example.find(reading.reb) + reading.reb.size());
+                return result;
+            }
+        }
+    }
+    return example;
 }

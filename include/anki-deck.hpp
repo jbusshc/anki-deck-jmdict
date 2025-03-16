@@ -25,6 +25,8 @@ class AnkiDeck {
         int getWordKanjiKanken(const std::string& word) const;
         std::string getStringKanjiKanken(int pos) const;
         std::string getTagKanjiKanken(std::string word) const;
+        std::string getHighlightedWord(const std::string& example, const JMDictEntry& word) const;
+
     private:
         JMDict jmdict_;
         std::string filename_;

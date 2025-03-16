@@ -4,6 +4,10 @@ Language operator|(Language a, Language b) {
     return static_cast<Language>(static_cast<int>(a) | static_cast<int>(b));
 }
 
+Language operator&(Language a, Language b) {
+    return static_cast<Language>(static_cast<int>(a) & static_cast<int>(b));
+}
+
 // Obtener el idioma
 Language getLanguage(std::string lang) {
     if (lang == "eng") return Language::ENGLISH;
@@ -35,3 +39,13 @@ std::vector<std::string> createLangsVector(Language lang) {
     return languages;
 }
 
+std::string getLangFlag(Language lang) {
+    if (lang == Language::ENGLISH) return "🇬🇧";
+    if (lang == Language::SPANISH) return "🇪🇸";
+    if (lang == Language::PORTUGUESE) return "🇵🇹";
+    if (lang == Language::FRENCH) return "🇫🇷";
+    if (lang == Language::GERMAN) return "🇩🇪";
+    if (lang == Language::RUSSIAN) return "🇷🇺";
+    if (lang == Language::CHINESE) return "🇨🇳";
+    return "null";
+}

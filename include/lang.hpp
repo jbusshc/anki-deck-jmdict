@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 // Idiomas
 enum Language {
@@ -15,9 +16,12 @@ enum Language {
 };
 
 Language operator|(Language a, Language b);
+Language operator&(Language a, Language b);
 
 // Obtener el idioma
 Language getLanguage(std::string lang);
 
 // Crear un vector de idiomas
 std::vector<std::string> createLangsVector(Language lang);
+
+std::string  getLangFlag(Language lang);

@@ -49,6 +49,9 @@ struct JMDictSenseElement {
     Language lang;
 };
 // Entrada del diccionario
+/**
+ * @brief Represents an entry in the JMdict dictionary.
+ */
 struct JMDictEntry {
     std::string ent_seq;
     std::vector<JMDictKanjiElement> kanji;

@@ -1,6 +1,28 @@
 # Changelog
 
+## [0.8.0] - 2022-3-15
 
+## Added
+- Banderas que diferencian idiomas.
+- Palabra se resalta en la oración de ejemplo.
+
+## Fixed
+- CSS correcto para separar oraciones con ejemplos.
+
+### Pending
+- Añadir clase para Kanjis, para incluirlos en cada entrada.
+- Ant y ref en anki
+
+
+## [0.7.1] - 2022-3-10
+
+## Fixed 
+- Ejemplos ahora se extraen correctamente para cada sense desde otro xml.
+
+### Pending
+- Añadir clase para Kanjis, para incluirlos en cada entrada.
+- Mostrar diferencias de idioma.
+- Ant y ref en anki
 
 ## [0.7.0] - 2022-2-16
 
