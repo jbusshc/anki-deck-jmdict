@@ -1,7 +1,4 @@
 #include "jmdict.hpp"
-#include <libxml2/libxml/xmlversion.h>
-#include <libxml2/libxml/tree.h>
-#include "constant.hpp"
 
 
 // Inicializar la biblioteca de libxml2 y cargar el archivo XML
@@ -203,6 +200,8 @@ void JMDict::processExample_(xmlNode *node, JMDictSenseElement &sense) {
     sense.example.push_back(example);
 }
 
+
+
 // Insertar una entrada en el diccionario
 void JMDict::insertEntry_(const JMDictEntry &entry, int mode) {
     std::string key;
@@ -212,6 +211,12 @@ void JMDict::insertEntry_(const JMDictEntry &entry, int mode) {
     }
     else {
         key = entry.reading[0].reb;
+    }
+
+    if (key == "ケチ")  {
+        std::cout << "found" << std::endl;
+        printEntry_(entry);
+        std::cout << std::endl;
     }
     //std::cout << "post searchEntry" << std::endl;
     int index = searchEntry(key);
@@ -299,15 +304,3 @@ void JMDict::print() const {
         //printEntry_(entry);
 }
 
-bool isEmpty(const std::string str) {
-    if (str.length() == 0){
-        return true;
-    }
-
-    for (size_t i = 0; i < str.length(); i++) {
-        if (str[i] != ' ' || str[i] != '\n' || str[i] != '\t') {
-            return false;
-        }
-    }
-    return true;
-}

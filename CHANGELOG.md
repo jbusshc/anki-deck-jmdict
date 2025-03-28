@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.8.0] - 2022-3-15
+## TODO
+- Crear función que elimine senses repetidos
+- Ver por qué KECHI no tiene banderas (posible fallo de html)
+
+## [0.8.0] - 2025-3-15
 
 ## Added
 - Banderas que diferencian idiomas.
@@ -14,7 +18,7 @@
 - Ant y ref en anki
 
 
-## [0.7.1] - 2022-3-10
+## [0.7.1] - 2025-3-10
 
 ## Fixed 
 - Ejemplos ahora se extraen correctamente para cada sense desde otro xml.
@@ -24,7 +28,7 @@
 - Mostrar diferencias de idioma.
 - Ant y ref en anki
 
-## [0.7.0] - 2022-2-16
+## [0.7.0] - 2025-2-16
 
 ## Changed
 Se cambió el modelo: entradas JMDictEntry pasan a ser std::vector<JMDictEntry>> 

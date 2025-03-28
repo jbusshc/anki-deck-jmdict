@@ -1,77 +1,5 @@
 #include "anki-deck.hpp"
 
-
-bool inSubstr(const std::string& str, const std::string& substr) {
-    return str.find(substr) != std::string::npos;
-}
-
-bool isCommon(const std::string& text) {
-    if (inSubstr(text, "ichi1")) {
-        return true;
-    }
-    if (inSubstr(text, "news1")) {
-        return true;
-    }
-    if (inSubstr(text, "spec1")) {
-        return true;
-    }
-    if (inSubstr(text, "gai1")) {
-        return true;
-    }
-    if (inSubstr(text, "ichi2")) {
-        return true;
-    }
-    if (inSubstr(text, "news2")) {
-        return true;
-    }
-    if (inSubstr(text, "spec2")) {
-        return true;
-    }
-    if (inSubstr(text, "gai2")) {
-        return true;
-    }
-
-    if (inSubstr(text, "nf")) {
-
-        for (int i = 0; i <= 48; i++) {
-            if (inSubstr(text, "nf" + std::to_string(i))) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-void replaceWhiteSpaces(std::string& text) {
-    for (size_t i = 0; i < text.size(); i++) {
-        if (text[i] == ' ') {
-            text[i] = '_';
-        }
-    }
-}
-
-void cleanText(std::string& text) {
-    if (text == "work of art, literature, music, etc. name")
-        text = "work_of_art";
-    if (text == "art, aesthetics")
-        text = "art";
-    if (text == "electricity, elec. eng.")
-        text = "electricity";
-    if (text == "food, cooking")
-        text = "food";
-    if (text == "gardening, horticulture")
-        text = "gardening";
-    if (text == "jocular, humorous term")
-        text = "jocular";
-    if (text == "male term or language")
-        text = "male_language";
-    if (text == "female term or language")
-        text = "female_language";
-    if (text == "rude or X-rated term (not displayed in educational software)")
-        text = "x_rated";
-    
-}
-
 void AnkiDeck::generateAnkiDeck() const {
     std::ofstream file(filename_);
     if (!file.is_open()) {
@@ -97,10 +25,8 @@ void AnkiDeck::generateAnkiDeck() const {
                     for (const JMDictReadingElement &reading : entry.reading) {
                         if (reading.re_restr.size() == 0 || inSubstr(kanji.keb, reading.re_restr) || reading.re_restr == "") {
                             file << "<div class=\"reading\">" + reading.reb + "</div>";
-                        }
-                        
+                        }                        
                     }
-    
                     file << "<br>";
                 }
     
@@ -109,9 +35,11 @@ void AnkiDeck::generateAnkiDeck() const {
                     // Pos
                     for (const std::string &pos : sense.pos) 
                         file << "<div class=\"pos\">" + pos + "</div>";
-                    file << "<div class=\"flag\"> ";
-                    file << getLangFlag(sense.lang);
-                    file << "</div>";
+                    if (!isMonoLang()) {
+                        file << "<div class=\"flag\"> ";
+                        file << getLangFlag(sense.lang);
+                        file << "</div>";
+                    }
                     // Gloss
                     file << "<div class=\"gloss\">";
                     for (const std::string &gloss : sense.gloss) 
@@ -145,9 +73,11 @@ void AnkiDeck::generateAnkiDeck() const {
                     // Pos
                     for (const std::string &pos : sense.pos) 
                         file << "<div class=\"pos\">" + pos + "</div>";
-                    file << "<div class=\"flag\"> ";
-                    file << getLangFlag(sense.lang);
-                    file << "</div>";
+                    if (!isMonoLang()) {
+                        file << "<div class=\"flag\"> ";
+                        file << getLangFlag(sense.lang);
+                        file << "</div>";
+                    }
                     // Gloss
                     file << "<div class=\"gloss\">";
                     for (const std::string &gloss : sense.gloss) 
@@ -319,6 +249,15 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                 std::string result = example.substr(0, example.find(kanji.keb));
                 result += highlighted;
                 result += example.substr(example.find(kanji.keb) + kanji.keb.size());
+                return result;
+            }
+        }
+        for (const JMDictReadingElement &reading : word.reading) {
+            if (inSubstr(example, reading.reb)) {
+                std::string highlighted = "<span class=\"highlighted\">" + reading.reb + "</span>";
+                std::string result = example.substr(0, example.find(reading.reb));
+                result += highlighted;
+                result += example.substr(example.find(reading.reb) + reading.reb.size());
                 return result;
             }
         }

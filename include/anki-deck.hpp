@@ -26,6 +26,7 @@ class AnkiDeck {
         std::string getStringKanjiKanken(int pos) const;
         std::string getTagKanjiKanken(std::string word) const;
         std::string getHighlightedWord(const std::string& example, const JMDictEntry& word) const;
+        bool isMonoLang() const { return jmdict_.isMonoLang(); }
 
     private:
         JMDict jmdict_;

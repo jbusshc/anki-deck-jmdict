@@ -5,6 +5,10 @@
 #include <iostream>
 #include <unordered_map>
 #include <fstream>
+#include <libxml2/libxml/xmlversion.h>
+#include <libxml2/libxml/tree.h>
+#include "constant.hpp"
+#include "util.hpp"
 
 #include "lang.hpp"
 
@@ -124,7 +128,9 @@ class JMDict {
         const std::vector<std::vector<JMDictEntry>> &getEntries() const {
             return entries_;
         }
-
+        bool isMonoLang() const {
+            return langs_.size() == 1;
+        }
 
     private:
         std::string filename_;
