@@ -1,6 +1,7 @@
 data/JMdict
 data/JMdict_e_examp
 data/deck.txt
+data/*
 build/
 bin/
 .vscode/
