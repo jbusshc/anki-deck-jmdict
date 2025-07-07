@@ -200,23 +200,22 @@ void JMDict::processExample_(xmlNode *node, JMDictSenseElement &sense) {
     sense.example.push_back(example);
 }
 
-
+std::string make_key(const JMDictEntry &entry) {
+    if (entry.kanji.size() > 0) {
+        return entry.kanji[0].keb;
+    } else if (entry.reading.size() > 0) {
+        return entry.reading[0].reb;
+    }
+    return "";
+}
 
 // Insertar una entrada en el diccionario
 void JMDict::insertEntry_(const JMDictEntry &entry, int mode) {
-    std::string key;
-    //std::cout << "pre searchEntry" << std::endl;
-    if (entry.kanji.size() > 0) {
-        key = entry.kanji[0].keb;
-    }
-    else {
-        key = entry.reading[0].reb;
-    }
 
-    if (key == "ケチ")  {
-        std::cout << "found" << std::endl;
-        printEntry_(entry);
-        std::cout << std::endl;
+    std::string key = make_key(entry);
+    if (key.empty()) {
+        std::cerr << "Error: La entrada no tiene ni kanji ni lectura." << std::endl;
+        return;
     }
     //std::cout << "post searchEntry" << std::endl;
     int index = searchEntry(key);

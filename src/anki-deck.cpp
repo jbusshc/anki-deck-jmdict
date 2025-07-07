@@ -1,4 +1,5 @@
 #include "anki-deck.hpp"
+#include "constant.hpp"
 
 void AnkiDeck::generateAnkiDeck() const {
     std::ofstream file(filename_);
@@ -14,9 +15,11 @@ void AnkiDeck::generateAnkiDeck() const {
             //std::cout << "preEntry " << nEntry << std::endl;
             //std::cout << "Entry " << nEntry << std::endl;
             // Kanji word
+            Language lastLang = entry.sense[0].lang;
             if (entry.kanji.size() > 0) {
                 if (!frontWritten) {
-                    file << "<div class=\"front\">"+entry.kanji[0].keb + "</div>" << "\t";
+                    std::string key = make_key(entry);
+                    file << "<div class=\"front\">" + key + "</div>" << "\t";
                     frontWritten = true;
                 }
                 // Reading
@@ -29,23 +32,45 @@ void AnkiDeck::generateAnkiDeck() const {
                     }
                     file << "<br>";
                 }
-    
+                size_t nSense = 1;
                 // Sense
                 for (const JMDictSenseElement &sense : entry.sense) {
                     // Pos
                     for (const std::string &pos : sense.pos) 
                         file << "<div class=\"pos\">" + pos + "</div>";
+
                     if (!isMonoLang()) {
                         file << "<div class=\"flag\"> ";
                         file << getLangFlag(sense.lang);
                         file << "</div>";
                     }
+                    if (lastLang != sense.lang) {
+                        lastLang = sense.lang;
+                        nSense = 1;
+                    }
                     // Gloss
                     file << "<div class=\"gloss\">";
-                    for (const std::string &gloss : sense.gloss) 
-                        file << "• " + gloss + "<br>";
-                    
+                    file << "<span class=\"gloss-number\">";
+                    file << std::to_string(nSense) + ". ";
+                    nSense++;
+                    file << "</span>";
+                    size_t iter = 0;
+                    for (const std::string &gloss : sense.gloss) {
+                        file << gloss;
+                        if (iter < sense.gloss.size() - 1) {
+                            file << "; ";
+                        }
+                        iter++;
+                    }
                     file << "</div>";
+                    if (sense.misc.size() > 0 || sense.xref.size() > 0 || sense.ant.size() > 0)
+                        file << "<span class=\"misc-separator\"></span>";
+                    for (const std::string &misc: sense.misc) 
+                        file << "<div class=\"misc\">" + misc + "</div>";
+                    for (const std::string &xref: sense.xref)
+                        file << "<div class=\"xref\"> See also: " + xref + "</div>";
+                    for (const std::string &ant: sense.ant)
+                        file << "<div class=\"ant\"> Antonym: " + ant + "</div>";
                     file << "<div class=\"example\">";
                     for (const JMDictExampleElement &example : sense.example) {
                         //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
@@ -69,6 +94,7 @@ void AnkiDeck::generateAnkiDeck() const {
                 for (const JMDictReadingElement &reading : entry.reading) {
                     file << "<div class=\"word\">" + reading.reb + "</div> <br>";
                 }
+                size_t nSense = 1;
                 for (const JMDictSenseElement &sense : entry.sense) {
                     // Pos
                     for (const std::string &pos : sense.pos) 
@@ -78,12 +104,34 @@ void AnkiDeck::generateAnkiDeck() const {
                         file << getLangFlag(sense.lang);
                         file << "</div>";
                     }
+                    if (lastLang != sense.lang) {
+                        lastLang = sense.lang;
+                        nSense = 1;
+                    }
                     // Gloss
                     file << "<div class=\"gloss\">";
-                    for (const std::string &gloss : sense.gloss) 
-                        file << "• " + gloss + "<br>";
-                    
+                    file << "<span class=\"gloss-number\">";
+                    file << std::to_string(nSense) + ". ";
+                    nSense++;
+                    file << "</span>";
+                    size_t iter = 0;
+                    for (const std::string &gloss : sense.gloss) {
+                        file << gloss;
+                        if (iter < sense.gloss.size() - 1) {
+                            file << "; ";
+                        }
+                        iter++;
+                    }
                     file << "</div>";
+                    if (sense.misc.size() > 0 || sense.xref.size() > 0 || sense.ant.size() > 0)
+                        file << "<span class=\"misc-separator\"></span>";
+                    for (const std::string &misc: sense.misc) 
+                        file << "<div class=\"misc\">" + misc + "</div>";
+                    for (const std::string &xref: sense.xref)
+                        file << "<div class=\"xref\"> See also: " + xref + "</div>";
+                    for (const std::string &ant: sense.ant)
+                        file << "<div class=\"ant\"> Antonym: " + ant + "</div>";
+                    
                     file << "<div class=\"example\">";
                     for (const JMDictExampleElement &example : sense.example) {
                         //file << "<div class=\"example\">" + example.ex_text + "</div> <br>";
@@ -185,21 +233,30 @@ void AnkiDeck::readAllKanjiKanken() {
     for (int i = 10; i > 0; i--) {
         std::string filename;
         if (i == 1) {
-            filename = "../data/kanji-k1.5.txt";
+            filename = DATA_KANKEN_1_5;
             readKanjiKanken(filename, 1);
 
-            filename = "../data/kanji-k1.txt";
+            filename = DATA_KANKEN_1;
             readKanjiKanken(filename, 0);
         }
         else if (i == 2) {
-            filename = "../data/kanji-k2.5.txt";
+            filename = DATA_KANKEN_2_5;
             readKanjiKanken(filename, 3);
 
-            filename = "../data/kanji-k2.txt";
+            filename = DATA_KANKEN_2;
             readKanjiKanken(filename, 2);
         }
         else {
-            filename = "../data/kanji-k" + std::to_string(i) + ".txt";
+            switch(i) {
+                case 3: filename = DATA_KANKEN_3; break;
+                case 4: filename = DATA_KANKEN_4; break;
+                case 5: filename = DATA_KANKEN_5; break;
+                case 6: filename = DATA_KANKEN_6; break;
+                case 7: filename = DATA_KANKEN_7; break;
+                case 8: filename = DATA_KANKEN_8; break;
+                case 9: filename = DATA_KANKEN_9; break;
+                case 10: filename = DATA_KANKEN_10; break;
+            }
             readKanjiKanken(filename, i+1);
         }
         

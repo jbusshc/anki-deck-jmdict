@@ -3,6 +3,8 @@
 #include "jmdict.hpp"
 #include <fstream>
 
+extern std::string make_key(const JMDictEntry &entry);
+
 class AnkiDeck {
     public:
         AnkiDeck() { init(); }

@@ -75,7 +75,9 @@ class JMDict {
             filename_ = filename;
         }
         void setLangs(const std::vector<std::string> &langs) {
-            langs_ = langs;
+            if (langs_.size() < langs.size()) {
+                langs_ = langs;
+            }
         }
 
         void readJMDict(const std::string &filename, Language lang, int mode) {
@@ -123,7 +125,8 @@ class JMDict {
         void print() const;
         //void parseExamplesFromXML(const std::string &str);
         void setLang(Language lang) {
-            langs_ = createLangsVector(lang);
+            if (langs_.empty() || langs_.size() < 1) 
+                langs_ = createLangsVector(lang);
         }
         const std::vector<std::vector<JMDictEntry>> &getEntries() const {
             return entries_;
