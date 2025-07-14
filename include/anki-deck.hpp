@@ -27,8 +27,10 @@ class AnkiDeck {
         int getWordKanjiKanken(const std::string& word) const;
         std::string getStringKanjiKanken(int pos) const;
         std::string getTagKanjiKanken(std::string word) const;
-        std::string getHighlightedWord(const std::string& example, const JMDictEntry& word) const;
+        std::string getHighlightedWord(const std::string& example, const JMDictEntry& word, const JMDictSenseElement& sense) const;
         bool isMonoLang() const { return jmdict_.isMonoLang(); }
+        std::string conjugateVerb(const std::string& word, int mode, int type) const;
+        std::string conjugateAdjI(const std::string& word, int mode) const;
 
     private:
         JMDict jmdict_;

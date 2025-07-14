@@ -2,7 +2,23 @@
 
 ## TODO
 
-- Añadir clase para Kanjis, para incluirlos en cada entrada.
+migrating to tango! proyect. end of development.
+
+## [1.0.0] - 2025-7-14
+
+- add: new efficiente css and html
+- fix: conjugate verb and adjective functions
+
+
+## [0.9.2] - 2025-7-7
+
+### Deleted
+- div classes from from and back
+
+## [0.9.1] - 2025-7-7
+
+### Added
+- Box words groups (anki card)
 
 ## [0.9.0] - 2025-7-6
 

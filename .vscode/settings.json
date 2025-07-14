@@ -48,7 +48,15 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "text_encoding": "cpp"
+        "text_encoding": "cpp",
+        "charconv": "cpp",
+        "ctime": "cpp",
+        "list": "cpp",
+        "map": "cpp",
+        "format": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "variant": "cpp"
     },
     "terminal.integrated.profiles.windows": {
         "MSYS2 UCRT": {

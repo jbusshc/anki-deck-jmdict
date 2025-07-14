@@ -9,3 +9,4 @@ bool isEmpty(const std::string str);
 void replaceWhiteSpaces(std::string& text);
 void cleanText(std::string& text);
 bool isCommon(const std::string&);
+std::string trim(std::string str);
