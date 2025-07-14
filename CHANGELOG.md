@@ -6,7 +6,7 @@ migrating to tango! proyect. end of development.
 
 ## [1.0.0] - 2025-7-14
 
-- add: new efficiente css and html
+- add: new efficient css and html
 - fix: conjugate verb and adjective functions
 
 
