@@ -425,11 +425,24 @@ std::string AnkiDeck::getTagKanjiKanken(std::string word) const {
     return getStringKanjiKanken(pos);
 }
 
+std::string get_utf8_string_minus_one(const std::string& str) {
+    if (str.empty()) return "";
+
+    size_t i = str.size();
+
+    // Retrocede al inicio del último carácter UTF-8
+    do {
+        --i;
+    } while (i > 0 && (static_cast<unsigned char>(str[i]) & 0xC0) == 0x80);
+
+    return str.substr(0, i);
+}
+
 // type: 0 = godan, 1 = ichidan
 // conjugationIndex: 
 // 0: diccionario, 1: masu, 2: te, 3: ta, 4: nai, 5: potencial, 6: volitivo, 7: imperativo, 8: progresivo, 9: pasivo, 10: causativo, 11: causativo pasivo, 12: condicional, 13: deseo
 // 14: negativo pasado, 15: negativo te, 16: negativo potencial, 17: negativo volitivo, 18: negativo imperativo, 19: negativo progresivo, 20: negativo pasivo, 21: negativo causativo, 22: negativo causativo pasivo, 23: negativo condicional, 24: negativo deseo
-std::string conjugateVerb(const std::string& dictionaryForm, int conjugationIndex, int type) {
+std::string AnkiDeck::conjugateVerb(const std::string& dictionaryForm, int conjugationIndex, int type) const {
     if (dictionaryForm.size() < 2) return dictionaryForm;
     std::string stem = get_utf8_string_minus_one(dictionaryForm);
     std::string ending = dictionaryForm.substr(get_utf8_string_minus_one(dictionaryForm).size());
@@ -658,7 +671,7 @@ std::string conjugateVerb(const std::string& dictionaryForm, int conjugationInde
     return dictionaryForm;
 }
 
-std::string conjugateAdjI(const std::string& dictionaryForm, int conjugationIndex) {
+std::string AnkiDeck::conjugateAdjI(const std::string& dictionaryForm, int conjugationIndex) const {
     if (dictionaryForm.size() < 2) return dictionaryForm;
     std::string stem = get_utf8_string_minus_one(dictionaryForm);
     

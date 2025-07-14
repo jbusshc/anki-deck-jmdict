@@ -56,7 +56,9 @@
         "format": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "iomanip": "cpp",
+        "sstream": "cpp"
     },
     "terminal.integrated.profiles.windows": {
         "MSYS2 UCRT": {
