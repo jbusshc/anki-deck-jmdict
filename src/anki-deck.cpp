@@ -788,11 +788,13 @@ std::string AnkiDeck::conjugateAdjI(const std::string& dictionaryForm, int conju
 std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDictEntry& word,const JMDictSenseElement& sense) const {
     std::string key;
     std::string result;
+    std::string resultFinal = "";
     bool hasHighlighted = false; // for deciding if we need to search kana in kanji words
     //bool debugFound = false; // for debugging purposes
 
     if(isAdjective(sense) == 1) {
         for(int i = 0; i < 25; i++) {
+            result = "";
             // kanji word
             if (word.kanji.size() > 0) {
                 for (const JMDictKanjiElement &kanji : word.kanji) {
@@ -802,6 +804,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                         //debugFound = true; // for debugging purposes
                     }
                 }
@@ -812,6 +817,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                         //debugFound = true; // for debugging purposes
                     }
                 }
@@ -824,12 +832,16 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
             }
         }
     } else if(isVerb(sense) == 0) {
         for(int i = 0; i < 32; i++) {
+            result = "";
             // kanji word   
             if (word.kanji.size() > 0) {
                 for (const JMDictKanjiElement &kanji : word.kanji) {
@@ -841,6 +853,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += trim(example.substr(example.find(key) + key.size()));
                         hasHighlighted = true; // found kanji conjugation
                         //debugFound = true; // for debugging purposes
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
                 // If we found a kanji conjugation, we don't need to search for kana conjugations
@@ -855,6 +870,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
             } else { // kana word
@@ -866,12 +884,16 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
             }
         }
     } else if(isVerb(sense) == 1) {
         for(int i = 0; i < 32; i++) {
+            result = "";
             // kanji word
             if (word.kanji.size() > 0) {
                 for (const JMDictKanjiElement &kanji : word.kanji) {
@@ -883,6 +905,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += trim(example.substr(example.find(key) + key.size()));
                         hasHighlighted = true; // found kanji conjugation
                         //debugFound = true; // for debugging purposes
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
                 // If we found a kanji conjugation, we don't need to search for kana conjugations
@@ -898,9 +923,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
-                    }
-                    if (trim(word.ent_seq) == "1000300") {
-                        std::cout << "Debug: searching kana conjugation: " << key << " in example: " << example << std::endl;
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
             } else { // kana word
@@ -912,6 +937,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
             }
@@ -927,6 +955,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                     result += trim(example.substr(example.find(key) + key.size()));
                     //debugFound = true; // for debugging purposes
                     hasHighlighted = true; // found kanji word
+                    if (resultFinal.length() < result.length()) {
+                        resultFinal = result;
+                    }
                 }
             }
 
@@ -939,6 +970,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
+                        if (resultFinal.length() < result.length()) {
+                            resultFinal = result;
+                        }
                     }
                 }
             }   
@@ -951,6 +985,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                     result += highlighted;
                     result += trim(example.substr(example.find(key) + key.size()));
                     //debugFound = true; // for debugging purposes
+                    if (resultFinal.length() < result.length()) {
+                        resultFinal = result;
+                    }
                 }
             }
         }
@@ -1046,5 +1083,5 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
         std::cerr << "Example: " << example << std::endl;
     }
     */
-    return result;   
+    return resultFinal.length() > 0 ? resultFinal : result;
 }
