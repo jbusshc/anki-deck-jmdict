@@ -1,7 +1,11 @@
 #include "anki-deck.hpp"
 #include "constant.hpp"
-
+//#include <windows.h>
 int main() {
+
+    //Set the console output to UTF-8
+    //SetConsoleOutputCP(CP_UTF8);
+    //system("chcp 65001 > nul");
 
     AnkiDeck deck;
     deck.setFilename("../data/deck.txt");

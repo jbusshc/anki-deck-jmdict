@@ -92,3 +92,11 @@ std::string trim(std::string str) {
     size_t end = str.find_last_not_of(whitespace);
     return str.substr(start, end - start + 1);
 }
+
+std::string toLower(const std::string& str) {
+    std::string lowerStr = str;
+    for (char& c : lowerStr) {
+        c = static_cast<char>(std::tolower(c));
+    }
+    return lowerStr;
+}

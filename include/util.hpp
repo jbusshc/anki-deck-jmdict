@@ -10,3 +10,4 @@ void replaceWhiteSpaces(std::string& text);
 void cleanText(std::string& text);
 bool isCommon(const std::string&);
 std::string trim(std::string str);
+std::string toLower(const std::string& str);

@@ -3,17 +3,20 @@
 
 // return 0 ichidan 1 godan 2 otherwise
 int isVerb(const JMDictSenseElement &sense) {
+
     for (const std::string &pos : sense.pos) {
-        if (pos.find("ichidan") != std::string::npos) {
+        std::string lowerPos = toLower(pos);
+        //std::cout << "DEBUG: Checking pos: " << lowerPos << std::endl;
+        if (lowerPos.find("ichidan") != std::string::npos) {
             return 1; // Ichidan verb
         }
-        if (pos.find("godan") != std::string::npos) {
+        if (lowerPos.find("godan") != std::string::npos) {
             return 0; // Godan verb
         }
-        if (pos.find("suru") != std::string::npos) {
+        if (lowerPos.find("suru") != std::string::npos) {
             return 2; // Suru verb
         }
-        if (pos.find("kuru") != std::string::npos) {
+        if (lowerPos.find("kuru") != std::string::npos) {
             return 3; // Kuru verb
         }
     }
@@ -22,7 +25,8 @@ int isVerb(const JMDictSenseElement &sense) {
 
 int isAdjective(const JMDictSenseElement &sense) {
     for (const std::string &pos : sense.pos) {
-        if (pos.find("adj-i") != std::string::npos || pos.find("adjective (keiyoushi)") != std::string::npos) {
+        std::string lowerPos = toLower(pos);
+        if (lowerPos.find("adj-i") != std::string::npos || lowerPos.find("adjective (keiyoushi)") != std::string::npos) {
             return 1; // Adjective
         }
     }
@@ -438,7 +442,7 @@ std::string get_utf8_string_minus_one(const std::string& str) {
     return str.substr(0, i);
 }
 
-// type: 0 = godan, 1 = ichidan
+// type: 0 = godan, 1 = ichidan, 2 = suru, 3 = kuru
 // conjugationIndex: 
 // 0: diccionario, 1: masu, 2: te, 3: ta, 4: nai, 5: potencial, 6: volitivo, 7: imperativo, 8: progresivo, 9: pasivo, 10: causativo, 11: causativo pasivo, 12: condicional, 13: deseo
 // 14: negativo pasado, 15: negativo te, 16: negativo potencial, 17: negativo volitivo, 18: negativo imperativo, 19: negativo progresivo, 20: negativo pasivo, 21: negativo causativo, 22: negativo causativo pasivo, 23: negativo condicional, 24: negativo deseo
@@ -446,6 +450,82 @@ std::string AnkiDeck::conjugateVerb(const std::string& dictionaryForm, int conju
     if (dictionaryForm.size() < 2) return dictionaryForm;
     std::string stem = get_utf8_string_minus_one(dictionaryForm);
     std::string ending = dictionaryForm.substr(get_utf8_string_minus_one(dictionaryForm).size());
+
+    // Handle suru (type == 2) and kuru (type == 3) irregular verbs
+    if (type == 2) { // suru
+        switch (conjugationIndex) {
+            case 0: return dictionaryForm; // する
+            case 1: return "します";
+            case 2: return "して";
+            case 3: return "した";
+            case 4: return "しない";
+            case 5: return "できる";
+            case 6: return "しよう";
+            case 7: return "しろ";
+            case 8: return "している";
+            case 9: return "される";
+            case 10: return "させる";
+            case 11: return "させられる";
+            case 12: return "すれば";
+            case 13: return "したい";
+            case 14: return "しなかった";
+            case 15: return "しなくて";
+            case 16: return "できない";
+            case 17: return "しようとしない";
+            case 18: return "しないでください";
+            case 19: return "していない";
+            case 20: return "されない";
+            case 21: return "させない";
+            case 22: return "させられない";
+            case 23: return "しなければ";
+            case 24: return "したくない";
+            case 25: return "しました";
+            case 26: return "しません";
+            case 27: return "しませんでした";
+            case 28: return "しましょう";
+            case 29: return "しましょうか";
+            case 30: return "してください";
+            case 31: return "しないでください";
+            default: return dictionaryForm;
+        }
+    }
+    if (type == 3) { // kuru
+        switch (conjugationIndex) {
+            case 0: return dictionaryForm; // くる
+            case 1: return "きます";
+            case 2: return "きて";
+            case 3: return "きた";
+            case 4: return "こない";
+            case 5: return "こられる";
+            case 6: return "こよう";
+            case 7: return "こい";
+            case 8: return "きている";
+            case 9: return "こられる";
+            case 10: return "こさせる";
+            case 11: return "こさせられる";
+            case 12: return "くれば";
+            case 13: return "きたい";
+            case 14: return "こなかった";
+            case 15: return "こなくて";
+            case 16: return "こられない";
+            case 17: return "こようとしない";
+            case 18: return "こないでください";
+            case 19: return "きていない";
+            case 20: return "こられない";
+            case 21: return "こさせない";
+            case 22: return "こさせられない";
+            case 23: return "こなければ";
+            case 24: return "きたくない";
+            case 25: return "きました";
+            case 26: return "きません";
+            case 27: return "きませんでした";
+            case 28: return "きましょう";
+            case 29: return "きましょうか";
+            case 30: return "きてください";
+            case 31: return "こないでください";
+            default: return dictionaryForm;
+        }
+    }
 
     switch (conjugationIndex) {
         case 0: // Forma diccionario
@@ -708,6 +788,9 @@ std::string AnkiDeck::conjugateAdjI(const std::string& dictionaryForm, int conju
 std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDictEntry& word,const JMDictSenseElement& sense) const {
     std::string key;
     std::string result;
+    bool hasHighlighted = false; // for deciding if we need to search kana in kanji words
+    //bool debugFound = false; // for debugging purposes
+
     if(isAdjective(sense) == 1) {
         for(int i = 0; i < 25; i++) {
             // kanji word
@@ -719,6 +802,17 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
+                    }
+                }
+                for (const JMDictReadingElement &reading : word.reading) {
+                    key = conjugateAdjI(reading.reb, i);
+                    if (inSubstr(example, key)) {
+                        std::string highlighted = "<span>" + trim(key) + "</span>";
+                        result = trim(example.substr(0, example.find(key)));
+                        result += highlighted;
+                        result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
                     }
                 }
             } else { // kana word
@@ -729,13 +823,14 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
                     }
                 }
             }
         }
     } else if(isVerb(sense) == 0) {
         for(int i = 0; i < 32; i++) {
-            // kanji word
+            // kanji word   
             if (word.kanji.size() > 0) {
                 for (const JMDictKanjiElement &kanji : word.kanji) {
                     key = conjugateVerb(kanji.keb, i, 0);
@@ -744,6 +839,22 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        hasHighlighted = true; // found kanji conjugation
+                        //debugFound = true; // for debugging purposes
+                    }
+                }
+                // If we found a kanji conjugation, we don't need to search for kana conjugations
+                if (hasHighlighted) {
+                    continue;
+                }
+                for (const JMDictReadingElement &reading : word.reading) {
+                    key = conjugateVerb(reading.reb, i, 0);
+                    if (inSubstr(example, key)) {
+                        std::string highlighted = "<span>" + trim(key) + "</span>";
+                        result = trim(example.substr(0, example.find(key)));
+                        result += highlighted;
+                        result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
                     }
                 }
             } else { // kana word
@@ -754,6 +865,7 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
                     }
                 }
             }
@@ -769,6 +881,26 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        hasHighlighted = true; // found kanji conjugation
+                        //debugFound = true; // for debugging purposes
+                    }
+                }
+                // If we found a kanji conjugation, we don't need to search for kana conjugations
+                if (hasHighlighted) {
+                    continue;
+                }
+                
+                for (const JMDictReadingElement &reading : word.reading) {
+                    key = conjugateVerb(reading.reb, i, 1);
+                    if (inSubstr(example, key)) {
+                        std::string highlighted = "<span>" + trim(key) + "</span>";
+                        result = trim(example.substr(0, example.find(key)));
+                        result += highlighted;
+                        result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
+                    }
+                    if (trim(word.ent_seq) == "1000300") {
+                        std::cout << "Debug: searching kana conjugation: " << key << " in example: " << example << std::endl;
                     }
                 }
             } else { // kana word
@@ -779,6 +911,7 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
                     }
                 }
             }
@@ -792,8 +925,23 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                     result = trim(example.substr(0, example.find(key)));
                     result += highlighted;
                     result += trim(example.substr(example.find(key) + key.size()));
+                    //debugFound = true; // for debugging purposes
+                    hasHighlighted = true; // found kanji word
                 }
             }
+
+            if (!hasHighlighted) {
+                for (const JMDictReadingElement &reading : word.reading) {
+                    key = reading.reb;
+                    if (inSubstr(example, key)) {
+                        std::string highlighted = "<span>" + trim(key) + "</span>";
+                        result = trim(example.substr(0, example.find(key)));
+                        result += highlighted;
+                        result += trim(example.substr(example.find(key) + key.size()));
+                        //debugFound = true; // for debugging purposes
+                    }
+                }
+            }   
         } else { // kana word
             for (const JMDictReadingElement &reading : word.reading) {
                 key = reading.reb;
@@ -802,14 +950,101 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                     result = trim(example.substr(0, example.find(key)));
                     result += highlighted;
                     result += trim(example.substr(example.find(key) + key.size()));
+                    //debugFound = true; // for debugging purposes
                 }
             }
         }
     }
-    if (result.empty()) {
-        // If no conjugation was found, return the original example
-        return example;
-    }
     // If a conjugation was found, return the example with the highlighted word
+    /*
+    if (!debugFound) {
+        std::cerr << "Warning: No conjugation found for example: " << example << " with word: " << word.kanji[0].keb << std::endl;
+        // print all conjugations for debugging
+        if (word.kanji.size() > 0) {
+            if( isVerb(sense) == 0) {
+                for(int i = 0; i < 32; i++) {
+                    std::string conjugation = conjugateVerb(word.kanji[0].keb, i, 0);
+                    std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+                }
+            } else if(isVerb(sense) == 1) {
+                for(int i = 0; i < 32; i++) {
+                    std::string conjugation = conjugateVerb(word.kanji[0].keb, i, 1);
+                    std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+                }
+            } else if(isAdjective(sense) == 1) {
+                for(int i = 0; i < 25; i++) {
+                    std::string conjugation = conjugateAdjI(word.kanji[0].keb, i);
+                    std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+                }
+            } else {
+                std::cerr << "No conjugation found for word: " << word.kanji[0].keb << std::endl;
+            }
+        } else {
+            std::cerr << "No conjugation found for word: " << word.reading[0].reb << std::endl;
+            if( isVerb(sense) == 0) {
+                for(int i = 0; i < 32; i++) {
+                    std::string conjugation = conjugateVerb(word.reading[0].reb, i, 0);
+                    std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+                }
+            } else if(isVerb(sense) == 1) {
+                for(int i = 0; i < 32; i++) {
+                    std::string conjugation = conjugateVerb(word.reading[0].reb, i, 1);
+                    std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+                }
+            } else if(isAdjective(sense) == 1) {
+                for(int i = 0; i < 25; i++) {
+                    std::string conjugation = conjugateAdjI(word.reading[0].reb, i);
+                    std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+                }
+            } else {
+                std::cerr << "No conjugation found for word: " << word.reading[0].reb << std::endl;
+            }
+        }
+    }
+
+    if (result.empty()) {
+        // print word ent_seq
+        
+        std::cerr << "ent_seq: " << word.ent_seq << std::endl;
+        if (word.kanji.size() > 0) {
+            std::cerr << "kanji: " << word.kanji[0].keb << std::endl;
+            if (isVerb(sense) == 0) {
+            for (int i = 0; i < 32; i++) {
+                std::string conjugation = conjugateVerb(word.kanji[0].keb, i, 0);
+                std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+            }
+            } else if (isVerb(sense) == 1) {
+            for (int i = 0; i < 32; i++) {
+                std::string conjugation = conjugateVerb(word.kanji[0].keb, i, 1);
+                std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+            }
+            } else if (isAdjective(sense) == 1) {
+            for (int i = 0; i < 25; i++) {
+                std::string conjugation = conjugateAdjI(word.kanji[0].keb, i);
+                std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+            }
+            }
+        } else {
+            std::cerr << "reading: " << word.reading[0].reb << std::endl;
+            if (isVerb(sense) == 0) {
+            for (int i = 0; i < 32; i++) {
+                std::string conjugation = conjugateVerb(word.reading[0].reb, i, 0);
+                std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+            }
+            } else if (isVerb(sense) == 1) {
+            for (int i = 0; i < 32; i++) {
+                std::string conjugation = conjugateVerb(word.reading[0].reb, i, 1);
+                std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+            }
+            } else if (isAdjective(sense) == 1) {
+            for (int i = 0; i < 25; i++) {
+                std::string conjugation = conjugateAdjI(word.reading[0].reb, i);
+                std::cerr << "Conjugation " << i << ": " << conjugation << std::endl;
+            }
+            }
+        }
+        std::cerr << "Example: " << example << std::endl;
+    }
+    */
     return result;   
 }
