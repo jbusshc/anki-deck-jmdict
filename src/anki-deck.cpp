@@ -674,7 +674,7 @@ std::string AnkiDeck::conjugateVerb(const std::string& dictionaryForm, int conju
         case 16: // Potencial negativo
         {
             std::string potForm = conjugateVerb(dictionaryForm, 5, type);
-            std::string potStem = get_utf8_string_minus_one(get_utf8_string_minus_one(potForm));
+            std::string potStem = get_utf8_string_minus_one(potForm);
             return potStem + "ない";
         }
         case 17: // Volitivo negativo
@@ -789,7 +789,7 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
     std::string key;
     std::string result;
     std::string resultFinal = "";
-    bool hasHighlighted = false; // for deciding if we need to search kana in kanji words
+    std::string lastMatchedString = "";
     //bool debugFound = false; // for debugging purposes
 
     if(isAdjective(sense) == 1) {
@@ -804,8 +804,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
                         }
                         //debugFound = true; // for debugging purposes
                     }
@@ -817,8 +818,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
                         }
                         //debugFound = true; // for debugging purposes
                     }
@@ -832,8 +834,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
                         }
                     }
                 }
@@ -851,16 +854,20 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
-                        hasHighlighted = true; // found kanji conjugation
                         //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
+                            if (word.ent_seq == "1000300") {
+                                std::cout << "Found match: " << key << std::endl;
+                            }
+                        } else {
+                                if (word.ent_seq == "1000300") {
+                                std::cout << "Found shorter match: " << key << " than previous: " << lastMatchedString << std::endl;
+                                std::cout << "length: " << key.length() << " vs " << lastMatchedString.length() << std::endl;
+                            }
                         }
                     }
-                }
-                // If we found a kanji conjugation, we don't need to search for kana conjugations
-                if (hasHighlighted) {
-                    continue;
                 }
                 for (const JMDictReadingElement &reading : word.reading) {
                     key = conjugateVerb(reading.reb, i, 0);
@@ -869,9 +876,25 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
+                        if (word.ent_seq == "1000300") {
+                            std::cout << "Found match: " << key << std::endl;
+                        }
                         //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
+                            if (word.ent_seq == "1000300") {
+                                std::cout << "Found long match: " << key << std::endl;
+                            } 
+                        } else {
+                            if (word.ent_seq == "1000300") {
+                                std::cout << "Found shorter match: " << key << " than previous: " << lastMatchedString << std::endl;
+                                std::cout << "length: " << key.length() << " vs " << lastMatchedString.length() << std::endl;
+                            }
+                        }
+                    } else {
+                        if (word.ent_seq == "1000300") {
+                            std::cout << "No match found for: " << key << std::endl;
                         }
                     }
                 }
@@ -884,8 +907,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
                         }
                     }
                 }
@@ -903,18 +927,13 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result = trim(example.substr(0, example.find(key)));
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
-                        hasHighlighted = true; // found kanji conjugation
                         //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
                         }
                     }
-                }
-                // If we found a kanji conjugation, we don't need to search for kana conjugations
-                if (hasHighlighted) {
-                    continue;
-                }
-                
+                }                
                 for (const JMDictReadingElement &reading : word.reading) {
                     key = conjugateVerb(reading.reb, i, 1);
                     if (inSubstr(example, key)) {
@@ -923,8 +942,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
                         }
                     }
                 }
@@ -937,8 +957,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                         result += highlighted;
                         result += trim(example.substr(example.find(key) + key.size()));
                         //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
+                        if (lastMatchedString.length() < key.length()) {
+                            resultFinal = result; // store the longest match
+                            lastMatchedString = key; // store the last matched string
                         }
                     }
                 }
@@ -954,28 +975,28 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                     result += highlighted;
                     result += trim(example.substr(example.find(key) + key.size()));
                     //debugFound = true; // for debugging purposes
-                    hasHighlighted = true; // found kanji word
-                    if (resultFinal.length() < result.length()) {
-                        resultFinal = result;
+                    if (lastMatchedString.length() < key.length()) {
+                        resultFinal = result; // store the longest match
+                        lastMatchedString = key; // store the last matched string
                     }
                 }
             }
 
-            if (!hasHighlighted) {
-                for (const JMDictReadingElement &reading : word.reading) {
-                    key = reading.reb;
-                    if (inSubstr(example, key)) {
-                        std::string highlighted = "<span>" + trim(key) + "</span>";
-                        result = trim(example.substr(0, example.find(key)));
-                        result += highlighted;
-                        result += trim(example.substr(example.find(key) + key.size()));
-                        //debugFound = true; // for debugging purposes
-                        if (resultFinal.length() < result.length()) {
-                            resultFinal = result;
-                        }
+            for (const JMDictReadingElement &reading : word.reading) {
+                key = reading.reb;
+                if (inSubstr(example, key)) {
+                    std::string highlighted = "<span>" + trim(key) + "</span>";
+                    result = trim(example.substr(0, example.find(key)));
+                    result += highlighted;
+                    result += trim(example.substr(example.find(key) + key.size()));
+                    //debugFound = true; // for debugging purposes
+                    if (lastMatchedString.length() < key.length()) {
+                        resultFinal = result; // store the longest match
+                        lastMatchedString = key; // store the last matched string
                     }
                 }
-            }   
+            }
+            
         } else { // kana word
             for (const JMDictReadingElement &reading : word.reading) {
                 key = reading.reb;
@@ -985,8 +1006,9 @@ std::string AnkiDeck::getHighlightedWord(const std::string& example, const JMDic
                     result += highlighted;
                     result += trim(example.substr(example.find(key) + key.size()));
                     //debugFound = true; // for debugging purposes
-                    if (resultFinal.length() < result.length()) {
-                        resultFinal = result;
+                    if (lastMatchedString.length() < key.length()) {
+                        resultFinal = result; // store the longest match
+                        lastMatchedString = key; // store the last matched string
                     }
                 }
             }
